@@ -16,6 +16,7 @@ export class ImgMaxPXSizeService {
             //END OF RESIZE
             setTimeout(()=>{
                 resizedFileSubject.error({ resizedFile: file, reason: "The provided File is neither of type jpg nor of type png.", error: "INVALID_EXTENSION" });
+                resizedFileSubject.complete();
             },0);
             return resizedFileSubject.asObservable();
         }
@@ -44,16 +45,19 @@ export class ImgMaxPXSizeService {
                 if(newHeight===orientedImg.height && newWidth === orientedImg.width){
                     //no resizing necessary
                     resizedFileSubject.next(file);
+                    resizedFileSubject.complete();
                     self.logExecutionTime(logExecutionTime);
                 }
                 else{
                     self.ng2PicaService.resize([file], newWidth, newHeight).subscribe((result) => {
                         //all good, result is a file
                         resizedFileSubject.next(result);
+                        resizedFileSubject.complete();
                         self.logExecutionTime(logExecutionTime);
                     }, error =>{
                         //something went wrong 
                         resizedFileSubject.error({ resizedFile: file, reason: error, error: "PICA_ERROR" });
+                        resizedFileSubject.complete();
                         self.logExecutionTime(logExecutionTime);
                     });
                 }

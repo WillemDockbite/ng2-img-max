@@ -20,6 +20,7 @@ export class ImgMaxSizeService {
             //END OF COMPRESSION
             setTimeout(() => {
                 compressedFileSubject.error({ compressedFile: file, reason: "File provided is neither of type jpg nor of type png.", error: "INVALID_EXTENSION" });
+                compressedFileSubject.complete();
             }, 0);
             return compressedFileSubject.asObservable();
         }
@@ -28,7 +29,7 @@ export class ImgMaxSizeService {
         if (oldFileSize < maxSizeInMB) {
             // END OF COMPRESSION
             // FILE SIZE ALREADY BELOW MAX_SIZE -> no compression needed
-            setTimeout(() => { compressedFileSubject.next(file) }, 0);
+            setTimeout(() => { compressedFileSubject.next(file); compressedFileSubject.complete(); }, 0);
             return compressedFileSubject.asObservable();
         }
 
@@ -51,9 +52,11 @@ export class ImgMaxSizeService {
                 ctx.drawImage(orientedImg, 0, 0);
                 self.getCompressedFile(cvs, 50, maxSizeInMB, 1).then((compressedFile) => {
                     compressedFileSubject.next(compressedFile);
+                    compressedFileSubject.complete();
                     self.logExecutionTime(logExecutionTime);
                 }).catch((error) => {
                     compressedFileSubject.error(error);
+                    compressedFileSubject.complete();
                     self.logExecutionTime(logExecutionTime);
                 });
             });
